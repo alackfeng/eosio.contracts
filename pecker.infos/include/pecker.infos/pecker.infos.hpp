@@ -7,6 +7,8 @@
 #include <eosiolib/asset.hpp>
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/time.hpp>
+#include <eosiolib/ignore.hpp>
+#include <eosiolib/multi_index.hpp>
 
 #include <string>
 
@@ -16,26 +18,65 @@ namespace pecker {
   using eosio::time_point;
   using eosio::name;
   using eosio::print;
+  using eosio::ignore;
+  using eosio::indexed_by;
+  using eosio::const_mem_fun;
   using std::string;
 
-  struct infos_onchain {
+  struct info_onchain {
     /* type - 1: 'banner',  2 - 'notice', 3 - 'tunnel' */
     unsigned int  type;
-    time_point    declaration_time;
     string        labels;
     string        title;
     string        abstract;
     string        link;
-    string        sources;
+    string        source;
     string        poster;
     string        logo;
 
     const void print() const {
-      eosio::print(type, "\n", labels, "\n", title, "\n", abstract, "\n", link, "\n", sources, "\n", poster, "\n", logo, "\n");
+      eosio::print(type, "\n", labels, "\n", title, "\n", abstract, "\n", link, "\n", source, "\n", poster, "\n", logo, "\n");
     }
 
-    EOSLIB_SERIALIZE(infos_onchain, (type)(declaration_time)(labels)(title)(abstract)(link)(sources)(poster)(logo));
+    info_onchain() 
+      : type(0), title(""), abstract(""), link(""), source(""), poster(""), logo("")
+    {}
+
+    inline info_onchain& operator=(info_onchain info) {
+      
+      eosio::print(info);
+
+      type         = info.type;
+      labels       = info.labels;
+      title        = info.labels;
+      abstract     = info.abstract;
+      link         = info.link;
+      source      = info.source;
+      return *this;
+    }
+
+    EOSLIB_SERIALIZE(info_onchain, (type)(labels)(title)(abstract)(link)(source)(poster)(logo));
   };
+
+  struct [[eosio::table, eosio::contract("pecker.infos")]] infos_onchain
+  {
+    uint64_t        id;
+    name            owner;
+    // time_point      declare;
+    uint64_t        declare; // unix time, in seconds
+    info_onchain    info;
+
+    uint64_t primary_key() const { return id; } 
+    uint64_t get_owner() const { return owner.value; }
+    uint64_t get_declare() const { return declare; }
+
+    EOSLIB_SERIALIZE(infos_onchain, (id)(owner)(declare)(info));
+  };
+
+  typedef eosio::multi_index< "infos"_n, infos_onchain, 
+    eosio::indexed_by<"declare"_n, const_mem_fun<infos_onchain, uint64_t, &infos_onchain::get_declare> >,
+    eosio::indexed_by<"owner"_n, const_mem_fun<infos_onchain, uint64_t, &infos_onchain::get_owner> > 
+  > infos_table;
 
   class [[eosio::contract("pecker.infos")]] infos : public contract {
   
@@ -43,13 +84,10 @@ namespace pecker {
       using contract::contract;
 
       [[eosio::action]]
-      void issue3( name issuer, string info);
+      void issue( name issuer, const info_onchain& infos );
 
       [[eosio::action]]
-      void issue2( name issuer, const std::vector<string>& infos );
-
-      [[eosio::action]]
-      void issue( name issuer, const infos_onchain& infos );
+      void revoke( name issuer, uint64_t id );
 
   };
 

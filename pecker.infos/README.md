@@ -58,9 +58,11 @@ code hash: 478c17718561b49a54d148657a675fca799f819b7315560ff73717940a28235e
 cleosd push action pecker.infos issue3 '[ "taurus", "info tunnel" ]' -p taurus@active
 cleosd push action pecker.infos issue2 '{"issuer": "taurus", "infos": ["a", "b", "c"] }' -p taurus@active
 cleosd push action pecker.infos issue2 '["taurus", ["a", "b", "c"] ]' -p taurus@active
-cleosd push action pecker.infos issue '["taurus", {"type": 3, "declaration_time": "2018-10-20T12:10:32", "labels": "EOS|DAPP", "title": "十年 最震惊比特币世界的10天1", "abstract": "比特币是一场悄然兴起的革命。比特币走过十年，是一项革命性技术的浓缩历史。如果按照时间顺序梳理比特币十年，发现震撼了比特币世界的10天发生在大多数人听说比特币大事件，同时也影响了比特币的未来发展。", "link": "https://zerohero.one/", "sources": "ZEROHERO Offcial", "poster": "", "logo": null} ]' -p taurus@active
+cleosd push action pecker.infos issue '["alackfeng521", {"type": 1, "labels": "EOS|DAPP", "title": "十年 最震惊比特币世界的10天1", "abstract": "比特币是一场悄然兴起的革命。比特币走过十年，是一项革命性技术的浓缩历史。如果按照时间顺序梳理比特币十年，发现震撼了比特币世界的10天发生在大多数人听说比特币大事件，同时也影响了比特币的未来发展。", "link": "https://zerohero.one/", "source": "ZEROHERO Offcial", "poster": "", "logo": null} ]' -p taurus@active
 
-cleosd get currency balance eosio.token pecker.infos
+cleosd push action pecker.infos revoke '["taurus", 8]' -p taurus@active
+
+cleosd get table pecker.infos pecker.infos infos
 
 
 

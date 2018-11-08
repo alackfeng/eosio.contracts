@@ -7,24 +7,42 @@
 
 namespace pecker {
 
-void infos::issue3( name issuer, string info)
-{
-
-  print(issuer);
-}
-
-void infos::issue2( name issuer, const std::vector<string>& infos )
+void infos::issue( name issuer, const info_onchain& info )
 {
   print(issuer, "\n");
+  // print(info);
+
+  infos_table  _infos( _self, _self.value);
+
+  _infos.emplace( _self, [&]( auto& _info ) {
+    _info.id           = _infos.available_primary_key();
+    _info.owner        = issuer;
+    _info.declare      = now();
+    _info.info         = info;
+  });
+
 }
 
-void infos::issue( name issuer, const infos_onchain& infos )
+void infos::revoke( name issuer, uint64_t id )
 {
-  print(issuer, "\n");
-  print(infos);
+
+  print("revoke \n");
+  require_auth( issuer ); 
+
+  infos_table  _infos( _self, _self.value);
+
+  auto itr = _infos.find(id);
+  eosio_assert(itr != _infos.end(), "revoke info not found!!!");
+
+  eosio_assert(itr->owner == issuer, "revoke not owner you !!!");
+
+  // print(info->id);
+  //delete
+  _infos.erase(itr);
+
 }
 
 
 } /// namespace pecker
 
-EOSIO_DISPATCH( pecker::infos, (issue)(issue2)(issue3))
+EOSIO_DISPATCH( pecker::infos, (issue)(revoke))
