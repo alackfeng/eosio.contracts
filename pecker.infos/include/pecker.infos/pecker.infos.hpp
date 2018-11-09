@@ -48,7 +48,7 @@ namespace pecker {
 
       type         = info.type;
       labels       = info.labels;
-      title        = info.labels;
+      title        = info.title;
       abstract     = info.abstract;
       link         = info.link;
       source      = info.source;
